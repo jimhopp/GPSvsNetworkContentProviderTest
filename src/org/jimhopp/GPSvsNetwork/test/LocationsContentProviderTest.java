@@ -51,7 +51,6 @@ public class LocationsContentProviderTest extends ProviderTestCase2 {
 		map.put(LocationsContentProvider.LON_COL, loc != null ? loc.getLongitude() : 0);
 		map.put(LocationsContentProvider.ACCURACY_COL, loc != null ? loc.getAccuracy(): 10000000.0);
 		
-		
 		Uri url = getMockContentResolver().insert(LocationContentProvider.LOCATIONS_URI, map);
         assertTrue(url.getPath().endsWith(("/1")));
 	}
@@ -77,6 +76,42 @@ public class LocationsContentProviderTest extends ProviderTestCase2 {
 				null,                                       //selection args
 				null);
 		assertEquals(cursor.getCount(),1);
+		
+	}
+	public void testValuesRetrieved() {
+		final double PARIS_LAT= 48.8566;
+		final double PARIS_LON = 2.3522;
+		final double ACCURACY = 10000000.0;
+		long time = System.currentTimeMillis();
+		ContentValues map = new ContentValues(); 
+		map.put(LocationsContentProvider.TIME_COL, time); 
+		map.put(LocationsContentProvider.TYPE_COL, "Network");
+		map.put(LocationsContentProvider.LAT_COL, PARIS_LAT );
+		map.put(LocationsContentProvider.LON_COL, PARIS_LON );
+		map.put(LocationsContentProvider.ACCURACY_COL, ACCURACY);
+		
+		Uri url = getMockContentResolver().insert(LocationContentProvider.LOCATIONS_URI, map);
+        String id = url.getPath().substring(1 + url.getPath().lastIndexOf("/"));
+        
+        Cursor cursor = getMockContentResolver().query(
+				Uri.withAppendedPath(LocationContentProvider.LOCATIONS_URI, id),      //uri                                   //selection, we want all rows 
+				null,                                       //projections
+				null,                                       //select stmt
+				null,                                       //selection args
+				null);
+		assertEquals(cursor.getCount(),1);
+		assertTrue(cursor.moveToFirst());
+		assertEquals(cursor.getInt(cursor.getColumnIndex(BaseColumns._ID)),Integer.parseInt(id));
+		assertEquals(cursor.getString(cursor.getColumnIndex(LocationsContentProvider.TYPE_COL)),
+				"Network");
+		assertEquals(cursor.getLong(cursor.getColumnIndex(LocationsContentProvider.TIME_COL)),
+				time);
+		assertEquals(cursor.getDouble(cursor.getColumnIndex(LocationsContentProvider.LAT_COL)), 
+				PARIS_LAT, 0.001d);
+		assertEquals(cursor.getDouble(cursor.getColumnIndex(LocationsContentProvider.LON_COL)), 
+				PARIS_LON, 0.001d);
+		assertEquals(cursor.getDouble(cursor.getColumnIndex(LocationsContentProvider.ACCURACY_COL)), 
+				ACCURACY, 0.001d);
 		
 	}
 	public void testRetrieveLastNetworkPoint() {
