@@ -78,6 +78,31 @@ public class LocationsContentProviderTest extends ProviderTestCase2 {
 		assertEquals(cursor.getCount(),1);
 		
 	}
+	public void testRetrieveAllPoints() {
+		final int ITERATIONS = 10;
+		final double PARIS_LAT= 48.8566;
+		final double PARIS_LON = 2.3522;
+		final double ACCURACY = 100.0;
+		long time = System.currentTimeMillis();
+		for (int i=0;i<ITERATIONS;i++) {
+		ContentValues map = new ContentValues(); 
+			map.put(LocationsContentProvider.TIME_COL, time + 100 * i); 
+			map.put(LocationsContentProvider.TYPE_COL, "Network");
+			map.put(LocationsContentProvider.LAT_COL, PARIS_LAT + 10000.0 * i);
+			map.put(LocationsContentProvider.LON_COL, PARIS_LON + 10000.0 * i);
+			map.put(LocationsContentProvider.ACCURACY_COL, ACCURACY + 10 * i);
+			getMockContentResolver().insert(LocationContentProvider.LOCATIONS_URI, map);
+		}
+        
+        Cursor cursor = getMockContentResolver().query(
+				Uri.withAppendedPath(LocationContentProvider.LOCATIONS_URI, "/all"),      //uri                                   //selection, we want all rows 
+				null,                                       //projections
+				null,                                       //select stmt
+				null,                                       //selection args
+				null);
+		assertEquals(cursor.getCount(),ITERATIONS);
+		
+	}
 	public void testValuesRetrieved() {
 		final double PARIS_LAT= 48.8566;
 		final double PARIS_LON = 2.3522;
