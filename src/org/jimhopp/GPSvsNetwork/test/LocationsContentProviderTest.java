@@ -236,15 +236,22 @@ public class LocationsContentProviderTest extends ProviderTestCase2 {
 	
 	public void testDeleteAll() {
 		testRetrieveAllPoints();
-		getMockContentResolver().delete(Uri.withAppendedPath(LocationContentProvider.LOCATIONS_URI, "1"),
-			    null, null);
+		try {
+			getMockContentResolver().delete(
+				Uri.withAppendedPath(LocationContentProvider.LOCATIONS_URI, "/all"),      //uri                                   //selection, we want all rows 
+					null,                                       //projections
+					null);
+		} catch (RuntimeException e) {
+			fail("deleting all rows threw an exception and shouldn't have: " 
+					+ e.getLocalizedMessage());
+		}
 		Cursor cursor = getMockContentResolver().query(
 				Uri.withAppendedPath(LocationContentProvider.LOCATIONS_URI, "/all"),      //uri                                   //selection, we want all rows 
 				null,                                       //projections
 				null,                                       //select stmt
 				null,                                       //selection args
 				null);
-		assertEquals(cursor.getCount(),10);
+		assertEquals(cursor.getCount(),0);	
 	}
 	public void testUpdateUnsupported() {
 		try {
